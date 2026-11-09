@@ -1,0 +1,63 @@
+name: build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: build
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unelte
+        run: pip install pyinstaller
+      - name: Versiune
+        shell: pwsh
+        run: |
+          $v = "1.0.${{ github.run_number }}"
+          Set-Content -Path versiune.txt -Value $v -NoNewline
+          Set-Content -Path version.txt -Value $v -NoNewline
+          "VER=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: NVDA Controller Client
+        shell: pwsh
+        run: |
+          Invoke-WebRequest "https://www.nvaccess.org/files/nvda/releases/2024.4/nvda_2024.4_controllerClient.zip" -OutFile nc.zip
+          Expand-Archive nc.zip -DestinationPath nc
+          $dll = Get-ChildItem nc -Recurse -Filter nvdaControllerClient.dll | Where-Object { $_.FullName -match 'x64' } | Select-Object -First 1
+          if (-not $dll) { throw "nu am gasit dll-ul x64" }
+          Copy-Item $dll.FullName nvdaControllerClient.dll
+      - name: Exe
+        run: >
+          pyinstaller --noconfirm --windowed --name SynthSetManager
+          --add-data "index.html;." --add-data "app.js;." --add-data "stil.css;."
+          --add-data "versiune.txt;." --add-binary "nvdaControllerClient.dll;."
+          --hidden-import actualizare --hidden-import tkinter --hidden-import tkinter.filedialog
+          main.py
+      - name: Proba
+        shell: pwsh
+        run: |
+          python -c "import sys; sys.path.insert(0,'.'); import server, kronos_lib, pa_ops; print('import ok', server.VERSIUNE)"
+          if (-not (Test-Path dist/SynthSetManager/SynthSetManager.exe)) { throw "lipseste exe" }
+      - name: Installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          & $iscc installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC a esuat" }
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Synth Set Manager ${{ env.VER }}
+          make_latest: true
+          files: |
+            out/SynthSetManager-Setup.exe
+            version.txt
