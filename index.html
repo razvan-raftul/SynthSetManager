@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Synth Set Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="stil.css">
+</head>
+<body>
+<h1>Synth Set Manager</h1>
+<p id="anunt" role="status" aria-live="polite" class="anunt"></p>
+<p id="alerta" role="alert" class="alerta"></p>
+
+<div role="tablist" aria-label="Secțiuni" id="taburi">
+  <button role="tab" id="tab-kronos" aria-controls="p-kronos" aria-selected="true">Kronos</button>
+  <button role="tab" id="tab-pa" aria-controls="p-pa" aria-selected="false" tabindex="-1">Seria Pa</button>
+  <button role="tab" id="tab-setari" aria-controls="p-setari" aria-selected="false" tabindex="-1">Setări</button>
+</div>
+
+<!-- ============================================================ KRONOS -->
+<section role="tabpanel" id="p-kronos" aria-labelledby="tab-kronos">
+  <h2>Kronos</h2>
+  <div class="rand"><label for="k-sursa">Setul de unde iau</label> <select id="k-sursa"></select></div>
+  <div class="rand"><label for="k-tinta">Setul în care pun</label> <select id="k-tinta"></select></div>
+  <div class="rand"><label for="k-tip">Ce aduc</label>
+    <select id="k-tip"><option value="combi">Combi-uri</option><option value="prog">Programe</option></select></div>
+  <div class="rand"><label for="k-banca">Banca</label> <select id="k-banca"></select></div>
+  <div class="rand"><label for="k-cauta">Caută după nume</label> <input id="k-cauta" type="search" autocomplete="off"></div>
+
+  <h3 id="k-lista-titlu">Lista</h3>
+  <p class="nota">Lângă fiecare nume e cât ar ocupa în setul în care pun (sample-urile care sunt deja acolo nu se mai numără).</p>
+  <div id="k-lista" class="lista" role="group" aria-labelledby="k-lista-titlu"></div>
+  <div class="rand"><button id="k-bif-tot">Bifează tot ce e în listă</button> <button id="k-debif-tot">Debifează tot</button></div>
+
+  <h3 id="k-bifate-titlu">Ce am bifat</h3>
+  <ul id="k-bifate" class="linii"></ul>
+
+  <h3>Unde le pun</h3>
+  <div class="rand"><label for="k-b-combi">Combi-urile merg în banca</label> <select id="k-b-combi"></select></div>
+  <div class="rand"><label for="k-b-prog">Programele cerute merg în banca</label> <select id="k-b-prog"></select></div>
+  <div class="rand"><label for="k-b-timbre">Programele timbrelor merg în banca</label> <select id="k-b-timbre"></select></div>
+  <p class="nota">Totul se pune pe următoarea poziție liberă, după ultima ocupată. Programele EXi merg singure într-o bancă EXi (U-B).</p>
+  <div class="rand"><input type="checkbox" id="k-sw" checked> <label for="k-sw">SW1 și SW2 pe octavă la tot ce aduc</label></div>
+
+  <h3>Cum salvez</h3>
+  <div class="rand"><input type="radio" name="k-salv" id="k-salv-nou" value="nou" checked> <label for="k-salv-nou">Fac un set nou: copia setului în care pun, plus ce aduc</label></div>
+  <div class="rand" id="k-nume-rand"><label for="k-nume">Numele setului nou</label> <input id="k-nume" type="text" autocomplete="off"></div>
+  <div class="rand"><input type="radio" name="k-salv" id="k-salv-loc" value="loc"> <label for="k-salv-loc">Scriu direct în setul în care pun (fă-ți backup înainte)</label></div>
+  <div class="rand"><button id="k-adu" class="mare">Adu ce am bifat</button></div>
+
+  <h3 id="k-rez-titlu" tabindex="-1">Rezultat</h3>
+  <ul id="k-rez" class="linii"></ul>
+</section>
+
+<!-- ============================================================ PA -->
+<section role="tabpanel" id="p-pa" aria-labelledby="tab-pa" hidden>
+  <h2>Seria Pa</h2>
+  <div class="rand"><label for="p-sursa">Setul de unde iau</label> <select id="p-sursa"></select></div>
+  <div class="rand"><label for="p-tinta">Setul în care pun</label> <select id="p-tinta"></select></div>
+  <div class="rand"><label for="p-tip">Ce aduc</label>
+    <select id="p-tip"><option value="sunet">Sunete</option><option value="perf">Performance-uri</option><option value="style">Style-uri</option><option value="pad">Pad-uri</option></select></div>
+  <div class="rand"><label for="p-banca">Banca</label> <select id="p-banca"></select></div>
+  <div class="rand"><label for="p-cauta">Caută după nume</label> <input id="p-cauta" type="search" autocomplete="off"></div>
+
+  <h3 id="p-lista-titlu">Lista</h3>
+  <p class="nota">Lângă fiecare nume e cât ar ocupa în setul în care pun. La performance, style și pad se numără și sunetele user pe care le folosesc.</p>
+  <div id="p-lista" class="lista" role="group" aria-labelledby="p-lista-titlu"></div>
+  <div class="rand"><button id="p-bif-tot">Bifează tot ce e în listă</button> <button id="p-debif-tot">Debifează tot</button></div>
+
+  <h3 id="p-bifate-titlu">Ce am bifat</h3>
+  <ul id="p-bifate" class="linii"></ul>
+
+  <h3>Unde le pun</h3>
+  <div class="rand"><label for="p-b-dest">Banca din setul în care pun</label> <select id="p-b-dest"></select></div>
+  <p class="nota">„Aceeași bancă” pune pe același loc dacă e liber, altfel pe primul loc liber din bancă.</p>
+  <div class="rand"><input type="checkbox" id="p-cu-sunete" checked> <label for="p-cu-sunete">Adu și sunetele și pad-urile user pe care le folosesc</label></div>
+  <div class="rand"><input type="checkbox" id="p-peste"> <label for="p-peste">Scrie peste locurile ocupate</label></div>
+
+  <h3>Cum salvez</h3>
+  <div class="rand"><input type="radio" name="p-salv" id="p-salv-nou" value="nou" checked> <label for="p-salv-nou">Fac un set nou</label></div>
+  <div class="rand" id="p-nume-rand"><label for="p-nume">Numele setului nou</label> <input id="p-nume" type="text" autocomplete="off"></div>
+  <div class="rand"><input type="radio" name="p-salv" id="p-salv-loc" value="loc"> <label for="p-salv-loc">Scriu direct în setul în care pun (fă-ți backup înainte)</label></div>
+  <div class="rand"><button id="p-adu" class="mare">Adu ce am bifat</button></div>
+
+  <h3>Alte lucruri cu setul de unde iau</h3>
+  <div class="rand"><button id="p-raport">Raport: sunetele, mărimile și cine ce folosește</button></div>
+  <div class="rand"><button id="p-verifica">Verifică setul înainte de încărcat pe claviatură</button></div>
+  <div class="rand"><button id="p-curata">Scoate sunetele bifate și curăță sample-urile nefolosite</button></div>
+  <p class="nota">Curățenia folosește tot „Cum salvez”: set nou sau direct în setul de unde iau.</p>
+
+  <h3 id="p-rez-titlu" tabindex="-1">Rezultat</h3>
+  <ul id="p-rez" class="linii"></ul>
+</section>
+
+<!-- ============================================================ SETĂRI -->
+<section role="tabpanel" id="p-setari" aria-labelledby="tab-setari" hidden>
+  <h2>Setări</h2>
+  <h3>Folderele în care caut seturi Kronos</h3>
+  <ul id="s-kronos" class="linii"></ul>
+  <div class="rand"><button id="s-kronos-add">Adaugă un folder</button></div>
+  <h3>Folderele în care caut seturi Pa</h3>
+  <ul id="s-pa" class="linii"></ul>
+  <div class="rand"><button id="s-pa-add">Adaugă un folder</button></div>
+  <h3>Unde fac seturile noi</h3>
+  <p id="s-kronos-out"></p>
+  <div class="rand"><button id="s-kronos-out-b">Schimbă folderul pentru seturile Kronos noi</button></div>
+  <p id="s-pa-out"></p>
+  <div class="rand"><button id="s-pa-out-b">Schimbă folderul pentru seturile Pa noi</button></div>
+  <h3>Aplicația</h3>
+  <div class="rand"><button id="s-reincarca">Caută din nou seturile</button></div>
+  <div class="rand"><button id="s-inchide">Închide aplicația</button></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
